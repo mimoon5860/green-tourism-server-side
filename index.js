@@ -16,7 +16,9 @@ const client = new MongoClient(uri);
 
 async function run() {
     const database = client.db("tourism");
+
     const toursCollection = database.collection("tours");
+
     const tourJoined = database.collection("joined");
 
 
@@ -47,6 +49,34 @@ async function run() {
         await client.close();
     }
 
+    // Delete A Tour 
+    try {
+        app.delete('/tour/:id', async (req, res) => {
+            await client.connect();
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await toursCollection.deleteOne(query);
+            res.send(result)
+        })
+    } finally {
+        await client.close();
+    }
+
+    // Post A New Tour
+    try {
+        app.post('/tours', async (req, res) => {
+            await client.connect();
+            const newTour = req.body;
+            console.log(newTour);
+            const result = await toursCollection.insertOne(newTour);
+            res.json(result)
+        })
+    } finally {
+        await client.close();
+    }
+
+
+
     // Post Joined Tour 
     try {
         app.post('/joinedtour', async (req, res) => {
@@ -58,6 +88,7 @@ async function run() {
     } finally {
         await client.close();
     }
+
 
     // Get All joined Tours
     try {
@@ -115,21 +146,15 @@ async function run() {
     try {
         app.patch('/joinedtour/:id', async (req, res) => {
             await client.connect();
-
             const id = req.params.id;
             const updateStatus = req.body;
-
-            console.log(id, updateStatus);
             const filter = { _id: ObjectId(id) };
             const options = { upsert: true };
             const status = {
                 $set: updateStatus
             };
-
             const result = await tourJoined.updateOne(filter, status, options);
-
             res.json(result)
-
         })
     } finally {
         await client.close();
