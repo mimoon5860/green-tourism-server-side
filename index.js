@@ -100,6 +100,45 @@ async function run() {
         await client.close();
     }
 
+    // get every single joined tour 
+    try {
+        app.get('/joinedtour/:id', async (req, res) => {
+            await client.connect();
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const tour = await tourJoined.findOne(query);
+            res.send(tour);
+        })
+    } finally {
+        await client.close();
+    }
+
+    // update single user joined status 
+    try {
+        app.put('joinedtour/:id', async (req, res) => {
+            await client.connect();
+
+            const id = req.params.id;
+            const updateStatus = req.body;
+
+            console.log(id, updateStatus);
+            // const filter = { _id: ObjectId(id) };
+            // const options = { upsert: true };
+            // const updateStatus = {
+            //     $set: {
+            //         status: updateStatus
+            //     }
+            // };
+
+            // const result = await tourJoined.updateOne(filter, updateStatus, options);
+
+            res.json("hitted")
+
+        })
+    } finally {
+        await client.close();
+    }
+
 }
 run().catch(console.dir);
 
