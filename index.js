@@ -77,7 +77,6 @@ async function run() {
         app.post('/joinedtours/byuser', async (req, res) => {
             await client.connect();
             const userEmail = req.body;
-            console.log(userEmail);
             const query = { email: { $in: userEmail } };
             const userTours = await tourJoined.find(query).toArray();
             res.json(userTours);
@@ -91,7 +90,6 @@ async function run() {
         app.delete('/deleteJoinedTour/:id', async (req, res) => {
             await client.connect();
             const id = req.params.id;
-            console.log(id)
             const query = { _id: ObjectId(id) };
             const result = await tourJoined.deleteOne(query);
             res.send(result)
@@ -115,24 +113,22 @@ async function run() {
 
     // update single user joined status 
     try {
-        app.put('joinedtour/:id', async (req, res) => {
+        app.patch('/joinedtour/:id', async (req, res) => {
             await client.connect();
 
             const id = req.params.id;
             const updateStatus = req.body;
 
             console.log(id, updateStatus);
-            // const filter = { _id: ObjectId(id) };
-            // const options = { upsert: true };
-            // const updateStatus = {
-            //     $set: {
-            //         status: updateStatus
-            //     }
-            // };
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const status = {
+                $set: updateStatus
+            };
 
-            // const result = await tourJoined.updateOne(filter, updateStatus, options);
+            const result = await tourJoined.updateOne(filter, status, options);
 
-            res.json("hitted")
+            res.json(result)
 
         })
     } finally {
